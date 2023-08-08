@@ -1,6 +1,7 @@
 import ForceGraph from "@/components/ForceGraph";
 import { musicRecSystemPrompt } from "@/prompts/system";
-import { Configuration, OpenAIApi } from "openai";
+import { Configuration, OpenAIApi } from "openai-edge";
+import { OpenAIStream, StreamingTextResponse } from 'ai';
 
 type SearchParamType = { [key: string]: string | undefined }
 type Artist = {
@@ -14,40 +15,47 @@ type Results = {
     relevancy_matrix: any[]
 }
 
+export const runtime = 'edge';
+
 async function getData(artist: string) {
     if (!artist) {
         return { data: "Please provide an artist" }
     }
 
-    const configuration = new Configuration({
+    // Create an OpenAI API client (that's edge friendly!)
+    const config = new Configuration({
         apiKey: process.env.OPENAI_API_KEY,
     });
-
-    const openai = new OpenAIApi(configuration);
+    const openai = new OpenAIApi(config);
 
     const numRecommendations = 5
-    const completion = await openai.createChatCompletion({
+    const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
+        stream: true,
         messages: [
             { "role": "system", "content": musicRecSystemPrompt },
             { role: "user", content: artist + ", " + numRecommendations }
         ],
     });
 
+    // Convert the response into a friendly text-stream
+    const stream = OpenAIStream(response);
+    // Respond with the stream
+    return new StreamingTextResponse(stream);
 
-    if (!completion.data) {
-        // This will activate the closest `error.js` Error Boundary
-        throw new Error('Failed to fetch data')
-    }
+    // if (!completion.data) {
+    //     // This will activate the closest `error.js` Error Boundary
+    //     throw new Error('Failed to fetch data')
+    // }
 
-    const message = completion.data.choices[0]?.message?.content
+    // const message = completion.data.choices[0]?.message?.content
 
-    if (message) {
-        const results = JSON.parse(message)
+    // if (message) {
+    //     const results = JSON.parse(message)
 
-        return { data: results }
-    }
-    return { data: message }
+    //     return { data: results }
+    // }
+    // return { data: message }
 }
 
 const formatIntoGraphData = (originalArtist: string, results: Results) => {
