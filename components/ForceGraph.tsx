@@ -1,8 +1,10 @@
 'use client';
-
+import { useRouter } from 'next/navigation'
 import ForceGraph2D from 'react-force-graph-2d';
 
 export default function ForceGraph({ data }: { data: { nodes: { id: string }[], links: { source: string; target: string }[] }}) {
+    const router = useRouter();
+
     return (
         <ForceGraph2D
             graphData={data}
@@ -12,7 +14,7 @@ export default function ForceGraph({ data }: { data: { nodes: { id: string }[], 
             onNodeClick={(node) => {
                 // Open URL
                 if (node.url) {
-                    window.open(node.url, '_blank');
+                    router.push(node.url)
                 }
             }}
         />
