@@ -82,7 +82,7 @@ export default async function SearchPage({
     console.log(graphData)
     return (
         <main className="p-4">
-            <h1 className="title">Here's some music similar to {searchParams?.artist}...</h1>
+            <h1 className="title">Here&apos;s some music similar to {searchParams?.artist}...</h1>
             {/* <ul className="p-4 list-disc">
                 {data.recommendations.map((item: any) => (
                     <li key={item.name} className="mb-2">
