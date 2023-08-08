@@ -1,8 +1,10 @@
 'use client';
+import dynamic from 'next/dynamic'
 
-import ForceGraph from "@/components/ForceGraph";
 import { useChat } from "ai/react";
 import { useState } from "react";
+
+const ForceGraph = dynamic(() => import('../components/ForceGraph'), { ssr: false });
 
 type Artist = {
   name: string,
@@ -55,8 +57,8 @@ export default function HomePage() {
   const lastMessage = messages[messages.length - 1];
   let recommendations = null;
   let graphData = null;
-  
-  if (!isLoading) {
+
+  if (!isLoading && lastMessage) {
     recommendations = lastMessage?.role === "assistant" ? JSON.parse(lastMessage.content) : null;
     graphData = recommendations ? formatIntoGraphData(artist, recommendations) : null;
   }
