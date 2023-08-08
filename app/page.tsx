@@ -42,10 +42,7 @@ export default function HomePage() {
       body: {
         artist,
         amount,
-      },
-      // onResponse() {
-      //   scrollToBios();
-      // },
+      }
     });
 
   const onSubmit = (e: any) => {
