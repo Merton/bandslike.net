@@ -14,7 +14,7 @@ type Results = {
     relevancy_matrix: any[]
 }
 
-export async function getData(artist: string) {
+async function getData(artist: string) {
     if (!artist) {
         return { data: "Please provide an artist" }
     }
@@ -78,8 +78,7 @@ export default async function SearchPage({
     }
     const { data } = await getData(searchParams.artist)
     const graphData = formatIntoGraphData(searchParams.artist, data)
-    console.log(data)
-    console.log(graphData)
+
     return (
         <main className="p-4">
             <h1 className="title">Here&apos;s some music similar to {searchParams?.artist}...</h1>
