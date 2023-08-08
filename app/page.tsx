@@ -55,6 +55,7 @@ export default function HomePage() {
   const lastMessage = messages[messages.length - 1];
   let recommendations = null;
   let graphData = null;
+  
   if (!isLoading) {
     recommendations = lastMessage?.role === "assistant" ? JSON.parse(lastMessage.content) : null;
     graphData = recommendations ? formatIntoGraphData(artist, recommendations) : null;

@@ -1,19 +1,7 @@
 'use client';
 
-import { ForceGraph2D } from 'react-force-graph';
+import ForceGraph2D from 'react-force-graph-2d';
 
-// const data = {
-//     nodes: [
-//         { id: 'Harry' },
-//         { id: 'Sally' },
-//         { id: 'Alice' },
-//     ],
-//     links: [
-//         { source: 'Harry', target: 'Sally', width: 1 },
-//         { source: 'Harry', target: 'Alice', width: 10 },
-//     ],
-// };
-// { data }: { data: { nodes: { id: string }[], links: { source: string; target: string }[] }}
 export default function ForceGraph({ data }: { data: { nodes: { id: string }[], links: { source: string; target: string }[] }}) {
     return (
         <ForceGraph2D
