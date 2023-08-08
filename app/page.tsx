@@ -13,30 +13,50 @@ type Artist = {
   url: string | null
 }
 type Results = {
-  recommendations: Artist[],
-  relevancy_matrix: any[]
+  adjacency_list: {[source: string]: string[]}[]
 }
 
+// Example adjacency list
+// results = [
+//         {
+//           "Arctic Monkeys": ["The Strokes", "Franz Ferdinand", "The Black Keys"]
+//       },
+//       {
+//           "The Strokes": ["Phoenix", "Interpol", "The Libertines"]
+//       },
+//       {
+//           "Franz Ferdinand": ["Kaiser Chiefs", "Interpol", "Bloc Party"]
+//       },
+//       {
+//           "The Black Keys": ["The White Stripes", "Cage the Elephant", "Dan Auerbach"]
+//       }
+//   ]
+// }
+
 const formatIntoGraphData = (originalArtist: string, results: Results) => {
-  const allArtists = [{ name: originalArtist, about: null, explanation: null, url: null }, ...results.recommendations]
-  const nodes = allArtists.map((artist: Artist) => ({ id: artist.name, about: artist.about, description: artist.explanation, url: artist.url }))
-  let links = results.relevancy_matrix.map((row: string[], index: number) => (
-    row.map((value, innerIndex) => (
-      { source: nodes[index].id, target: nodes[innerIndex].id, width: parseInt(value) ?? 1 }
-    ))
-  )).flat().filter((link) => link.source !== link.target)
+  // Combine all artists from recommendations and adjacency_list
+  const allArtists = results.adjacency_list.map((adjacency) => [Object.keys(adjacency)[0], ...adjacency[Object.keys(adjacency)[0]]]).flat();
+  allArtists.push(originalArtist);
+  // Remove duplicates
+  const nodes = Array.from(new Set(allArtists)).map((artist) => ({ id: artist }));
 
-  // Normalise widths between 1 and 10
-  const max = Math.max(...links.map((link) => link.width))
-  const min = Math.min(...links.map((link) => link.width))
-  links = links.map((link) => ({ ...link, width: (link.width - min) / (max - min) * 9 + 1 }))
+  const links = results.adjacency_list.map((adjacency) => {
+    const source = Object.keys(adjacency)[0];
+    const targets = adjacency[source];
+    return targets.map((target: string) => ({ source, target }))
+  }).flat();
 
+  const topLevelArtists = [...results.adjacency_list.map((adjacency) => Object.keys(adjacency)[0])];
+  links.push(...topLevelArtists.map((artist) => ({ source: originalArtist, target: artist })));
+
+  
   return { nodes, links }
 }
 
+
 export default function HomePage() {
   const [artist, setArtist] = useState('');
-  const amount = 5
+  const amount = 3;
   const { input, handleInputChange, handleSubmit, isLoading, messages } =
     useChat({
       body: {
@@ -46,7 +66,6 @@ export default function HomePage() {
     });
 
   const onSubmit = (e: any) => {
-    console.log("onSubmit")
     setArtist(input);
     handleSubmit(e);
   };
@@ -57,7 +76,9 @@ export default function HomePage() {
 
   if (!isLoading && lastMessage) {
     recommendations = lastMessage?.role === "assistant" ? JSON.parse(lastMessage.content) : null;
+    console.log(recommendations)
     graphData = recommendations ? formatIntoGraphData(artist, recommendations) : null;
+    console.log(graphData)
   }
 
   return (
@@ -73,15 +94,15 @@ export default function HomePage() {
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
             </svg>
           </div>
-          <input 
+          <input
             value={input}
-            onChange={handleInputChange} 
-            type="search" 
-            name="artist" 
-            id="artist" 
-            placeholder="Search" 
+            onChange={handleInputChange}
+            type="search"
+            name="artist"
+            id="artist"
+            placeholder="Search"
             required
-            className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+            className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
           </input>
           <button type="submit" className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
@@ -91,22 +112,25 @@ export default function HomePage() {
       </form>
 
       {isLoading ? <h1>Loading!</h1> : <div>
-        <ul className="p-4 grid grid-cols-3 auto-rows-auto gap-4">
+        {/* <ul className="p-4 grid grid-cols-3 auto-rows-auto gap-4">
           {recommendations?.recommendations.map((item: any) => (
             <li key={item.name} className="block border-solid border-2 border-grey border-r-50 mb-2">
               <h1>{item.name}</h1>
               <p>{item.explanation}</p>
             </li>
           ))}
-        </ul>
+        </ul> */}
 
         {graphData && (
-          <div className="mt-8 w-full h-100">
-            <h2 className="text-2xl font-bold mb-4">
-              {artist}
-            </h2>
-            <ForceGraph data={graphData} />
-          </div>
+          <>
+            <p>{JSON.stringify(graphData)}</p>
+            <div className="mt-8 w-full h-100">
+              <h2 className="text-2xl font-bold mb-4">
+                {artist}
+              </h2>
+              <ForceGraph data={graphData} />
+            </div>
+          </>
         )}
       </div>
       }
