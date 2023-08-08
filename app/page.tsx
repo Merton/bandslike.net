@@ -4,7 +4,6 @@ import ForceGraph from "@/components/ForceGraph";
 import { useChat } from "ai/react";
 import { useState } from "react";
 
-// type SearchParamType = { [key: string]: string | undefined }
 type Artist = {
   name: string,
   about: string | null,
@@ -54,8 +53,12 @@ export default function HomePage() {
   };
 
   const lastMessage = messages[messages.length - 1];
-  const recommendations = lastMessage?.role === "assistant" ? JSON.parse(lastMessage.content) : null;
-  const graphData = recommendations ? formatIntoGraphData(artist, recommendations) : null;
+  let recommendations = null;
+  let graphData = null;
+  if (!isLoading) {
+    recommendations = lastMessage?.role === "assistant" ? JSON.parse(lastMessage.content) : null;
+    graphData = recommendations ? formatIntoGraphData(artist, recommendations) : null;
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
@@ -88,23 +91,23 @@ export default function HomePage() {
       </form>
 
       {isLoading ? <h1>Loading!</h1> : <div>
-        <ul className="p-4 list-disc">
+        <ul className="p-4 grid grid-cols-3 auto-rows-auto gap-4">
           {recommendations?.recommendations.map((item: any) => (
-            <li key={item.name} className="mb-2">
+            <li key={item.name} className="block border-solid border-2 border-grey border-r-50 mb-2">
               <h1>{item.name}</h1>
               <p>{item.explanation}</p>
             </li>
           ))}
         </ul>
 
-        {/* {graphData && (
-          <div className="mt-8">
+        {graphData && (
+          <div className="mt-8 w-full h-100">
             <h2 className="text-2xl font-bold mb-4">
               {artist}
             </h2>
             <ForceGraph data={graphData} />
           </div>
-        )} */}
+        )}
       </div>
       }
     </main>
