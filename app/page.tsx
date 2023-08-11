@@ -7,14 +7,6 @@ import { Progress } from '@/components/ui/progress';
 import { BandNetwork } from "@/components/bandNetwork";
 
 
-type Artist = {
-  name: string,
-  about: string | null,
-  explanation: string | null,
-  url: string | null
-}
-
-
 export default function HomePage() {
   const [artist, setArtist] = useState("");
   const amount = 3;
