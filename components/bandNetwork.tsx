@@ -1,3 +1,5 @@
+'use client';
+
 import dynamic from 'next/dynamic'
 
 const ForceGraph = dynamic(() => import('../components/forceGraph'), { ssr: false });
