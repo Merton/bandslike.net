@@ -1,42 +1,17 @@
 'use client';
-import dynamic from 'next/dynamic'
 
 import { useChat } from "ai/react";
 import { useState } from "react";
 import { SearchHistory } from '@/components/searchHistory';
 import { Progress } from '@/components/ui/progress';
+import { BandNetwork } from "@/components/bandNetwork";
 
-const ForceGraph = dynamic(() => import('../components/ForceGraph'), { ssr: false });
 
 type Artist = {
   name: string,
   about: string | null,
   explanation: string | null,
   url: string | null
-}
-
-type Results = {
-  adjacency_list: { [source: string]: string[] }[]
-}
-
-const formatIntoGraphData = (originalArtist: string, results: Results) => {
-  // Combine all artists from recommendations and adjacency_list
-  const allArtists = results.adjacency_list.map((adjacency) => [Object.keys(adjacency)[0], ...adjacency[Object.keys(adjacency)[0]]]).flat();
-  allArtists.push(originalArtist);
-  // Remove duplicates
-  const nodes = Array.from(new Set(allArtists)).map((artist) => ({ id: artist }));
-
-  const links = results.adjacency_list.map((adjacency) => {
-    const source = Object.keys(adjacency)[0];
-    const targets = adjacency[source];
-    return targets.map((target: string) => ({ source, target }))
-  }).flat();
-
-  const topLevelArtists = [...results.adjacency_list.map((adjacency) => Object.keys(adjacency)[0])];
-  links.push(...topLevelArtists.map((artist) => ({ source: originalArtist, target: artist })));
-
-
-  return { nodes, links }
 }
 
 
@@ -60,8 +35,8 @@ export default function HomePage() {
 
   const lastMessage = messages[messages.length - 1];
   let recommendations = null;
-  let graphData = null;
   let error = null;
+
   if (!isLoading) {
     const message = lastMessage?.role === "assistant" ? lastMessage.content : null;
     try {
@@ -71,7 +46,6 @@ export default function HomePage() {
     } catch (e) {
       error = message
     }
-    graphData = recommendations ? formatIntoGraphData(artist, recommendations) : null;
   }
 
   const loadingProgress = lastMessage ? lastMessage.content.length : 0;
@@ -110,14 +84,14 @@ export default function HomePage() {
       <section className="w-full mt-8">
         {isLoading ? <Progress value={loadingProgress} className="mt-12 mb-12" /> :
           <div>
-            {graphData && (
-              <ForceGraph data={graphData} />
+            {recommendations && (
+              <BandNetwork originalArtist={artist} results={recommendations} />
             )}
           </div>
         }
       </section>
 
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500">Ah, somethings gone wrong. This happens, give it another go <br />{error}</p>}
     </main>
   )
 }
