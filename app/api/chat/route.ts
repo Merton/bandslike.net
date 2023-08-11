@@ -12,7 +12,6 @@ const openai = new OpenAIApi(config);
 export const runtime = 'edge';
 
 export async function POST(req: Request) {
-
     const { artist, amount } = await req.json();
     // Ask OpenAI for a streaming completion given the prompt
     const response = await openai.createChatCompletion({
