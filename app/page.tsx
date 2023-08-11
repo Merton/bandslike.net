@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 
 import { useChat } from "ai/react";
 import { useState } from "react";
+import { SearchHistory } from '@/components/searchHistory';
 
 const ForceGraph = dynamic(() => import('../components/ForceGraph'), { ssr: false });
 
@@ -73,20 +74,14 @@ export default function HomePage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-24">
+    <main className="flex min-h-screen flex-col items-center text-center p-6">
       <h1 className="text-2xl">
-        BandsLike.net
+        Bands like...<span className="text-blue-500">{artist}</span>
       </h1>
-      { messages.length > 0 && <h2>Previous searches</h2> }
-      <ul>
-      {messages.filter((m) => m.role === 'user').map(m => (
-        <li key={m.id}>
-          {m.content}
-        </li>
-      ))}
-      </ul>
-      <form onSubmit={onSubmit} className="w-1/2 mt-8">
-        <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+      <p className="mt-2 mb-2">Designed to help you get out of your music rut by finding similar bands, <br /> and not just the most popular ones.</p>
+      { messages.length > 0 && <SearchHistory searches={messages.filter((m) => m.role === 'user')}></SearchHistory>}
+      <form onSubmit={onSubmit} className="w-full max-w-screen-md mt-8">
+        <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">bands like...</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -99,12 +94,12 @@ export default function HomePage() {
               setArtist(e.target.value)
               handleInputChange(e); 
             }}
-            placeholder="Search"
+            placeholder="bands like..."
             required
             className="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
           <button type="submit" className="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-            Search
+            search
           </button>
         </div>
       </form>
@@ -112,9 +107,6 @@ export default function HomePage() {
       {isLoading ? <h1>Loading!</h1> : <div>
         {graphData && (
             <div className="mt-8 h-100">
-              <h2 className="text-2xl font-bold mb-4">
-                {artist}
-              </h2>
               <ForceGraph data={graphData} />
             </div>
         )}
