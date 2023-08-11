@@ -74,16 +74,17 @@ export default function HomePage() {
 
   return (
     <main className="flex min-h-screen flex-col items-center p-24">
-      <h1 className="text-xl">
-        Find bands similar to your favorite artist
+      <h1 className="text-2xl">
+        BandsLike.net
       </h1>
       { messages.length > 0 && <h2>Previous searches</h2> }
+      <ul>
       {messages.filter((m) => m.role === 'user').map(m => (
-        <div key={m.id}>
-          {m.role === 'user' ? 'User: ' : 'AI: '}
+        <li key={m.id}>
           {m.content}
-        </div>
+        </li>
       ))}
+      </ul>
       <form onSubmit={onSubmit} className="w-1/2 mt-8">
         <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
         <div className="relative">
