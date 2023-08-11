@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import { useChat } from "ai/react";
 import { useState } from "react";
 import { SearchHistory } from '@/components/searchHistory';
+import { Progress } from '@/components/ui/progress';
 
 const ForceGraph = dynamic(() => import('../components/ForceGraph'), { ssr: false });
 
@@ -15,7 +16,7 @@ type Artist = {
 }
 
 type Results = {
-  adjacency_list: {[source: string]: string[]}[]
+  adjacency_list: { [source: string]: string[] }[]
 }
 
 const formatIntoGraphData = (originalArtist: string, results: Results) => {
@@ -34,7 +35,7 @@ const formatIntoGraphData = (originalArtist: string, results: Results) => {
   const topLevelArtists = [...results.adjacency_list.map((adjacency) => Object.keys(adjacency)[0])];
   links.push(...topLevelArtists.map((artist) => ({ source: originalArtist, target: artist })));
 
-  
+
   return { nodes, links }
 }
 
@@ -73,14 +74,16 @@ export default function HomePage() {
     graphData = recommendations ? formatIntoGraphData(artist, recommendations) : null;
   }
 
+  const loadingProgress = lastMessage ? lastMessage.content.length : 0;
+
   return (
-    <main className="flex min-h-screen flex-col items-center text-center p-6">
+    <main className="flex min-h-screen max-w-screen-md m-auto flex-col items-center text-center p-6">
       <h1 className="text-2xl">
         Bands like...<span className="text-blue-500">{artist}</span>
       </h1>
       <p className="mt-2 mb-2">Designed to help you get out of your music rut by finding similar bands, <br /> and not just the most popular ones.</p>
-      { messages.length > 0 && <SearchHistory searches={messages.filter((m) => m.role === 'user')}></SearchHistory>}
-      <form onSubmit={onSubmit} className="w-full max-w-screen-md mt-8">
+      {messages.length > 0 && <SearchHistory searches={messages.filter((m) => m.role === 'user')}></SearchHistory>}
+      <form onSubmit={onSubmit} className="w-full mt-8">
         <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">bands like...</label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -90,9 +93,9 @@ export default function HomePage() {
           </div>
           <input
             value={input}
-            onChange={(e) => { 
+            onChange={(e) => {
               setArtist(e.target.value)
-              handleInputChange(e); 
+              handleInputChange(e);
             }}
             placeholder="bands like..."
             required
@@ -104,15 +107,15 @@ export default function HomePage() {
           </button>
         </div>
       </form>
-
-      {isLoading ? <h1>Loading!</h1> : <div>
-        {graphData && (
-            <div className="mt-8 h-100">
+      <section className="w-full mt-8">
+        {isLoading ? <Progress value={loadingProgress} className="mt-12 mb-12" /> :
+          <div>
+            {graphData && (
               <ForceGraph data={graphData} />
-            </div>
-        )}
-      </div>
-      }
+            )}
+          </div>
+        }
+      </section>
 
       {error && <p className="text-red-500">{error}</p>}
     </main>
