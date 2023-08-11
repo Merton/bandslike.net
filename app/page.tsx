@@ -36,7 +36,7 @@ export default function HomePage() {
         recommendations = JSON.parse(message);
       }
     } catch (e) {
-      error = message
+      error = e + "\n" + message
     }
   }
 
