@@ -25,26 +25,22 @@ export const SearchHistory = ({
       onOpenChange={setIsOpen}
       className="w-[350px] space-y-2"
     >
-      <div className="flex items-center justify-between space-x-4 px-4">
-        <h4 className="text-sm font-semibold">
-          Recent searches
-        </h4>
+      <div className="">
         {searches.length > 1 && (
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-9 p-0">
+            <Button size="lg" className="p-2 px-4 hover:text-white hover:bg-secondary">
+              <h4 className="text-lg font-semibold">
+                History
+              </h4>
               <ChevronsUpDown className="h-4 w-4" />
-              <span className="sr-only">Toggle</span>
             </Button>
           </CollapsibleTrigger>
         )
         }
       </div>
-      <div className="rounded-md border px-4 py-3 font-mono text-sm">
-        {recentSearch?.content}
-      </div>
-      <CollapsibleContent className="space-y-2">
+      <CollapsibleContent className="space-y-2 absolute">
         {searches.slice(0, -1).map((search, i) => (
-          <div key={i} className="rounded-md border px-4 py-3 font-mono text-sm">
+          <div key={i} className=" bg-slate-500 text-white rounded-md border px-4 py-3 font-mono text-sm">
             {search.content}
           </div>
         ))}

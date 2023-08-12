@@ -32,12 +32,12 @@ const formatIntoGraphData = (originalArtist: string, results: Results) => {
 
   const getNodeColour = (node: { id: string}, originalArtist: string, otherArtists: string[]) => {
     if (node.id === originalArtist) {
-      return 'green'
+      return '#7400B8'
     }
     if (otherArtists.includes(node.id)) {
-        return 'blue'
+        return '#5E60CE'
         }
-    return 'blue'
+    return '#5E60CE'
   }
 
 
