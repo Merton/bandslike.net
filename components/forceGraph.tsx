@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 
 export default function ForceGraph({
@@ -12,13 +13,41 @@ export default function ForceGraph({
     },
     nodeColor: (node: { id: string }) => string
 }) {
+    const fgRef = useRef();
+    const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+    const onLoad = () => {
+        if (fgRef.current) {
+            fgRef.current.zoomToFit(500, 10);
+        }
+    }
+    
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setWindowSize({ width: window.innerWidth * 0.8, height: window.innerHeight * 0.7 });
+        }
+    }, []);
+
+    if (!windowSize.width || !windowSize.height) {
+        console.log('no windowSize')
+        return null;
+    }
+    console.log('windowSize', windowSize)
+
     return (
         <ForceGraph2D
+            width={windowSize.width}
+            height={windowSize.height}
+            ref={fgRef}
+            onEngineStop={onLoad}
+            cooldownTicks={20}
             graphData={data}
             linkWidth={(link) => link.width}
-            linkDirectionalParticles={1}
+            linkDirectionalParticles={3}
+            linkDirectionalParticleSpeed={0.001}
             nodeColor={(node) => nodeColor(node)}
-            nodeLabel={(node) => `<div><h1><strong>Artist: ${node.id}</strong></h1><br/><p><strong>About: </strong>${node.about ?? ''}</p><p><strong>Similarity: </strong>${node.description ?? ''}</p></div>`}
+            nodeLabel={(node) => `<div><h1><strong>${node.id}</strong></h1>`}
             onNodeClick={(node) => {
                 // Open URL
                 if (node.url) {
