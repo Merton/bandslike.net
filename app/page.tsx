@@ -71,7 +71,7 @@ export default function SearchPage() {
         recordSearchResult(gptRecommendations);
       }
     }
-  }, [isLoading, messages])
+  }, [isLoading, messages, recordSearchResult])
 
   const lastMessage = messages[messages.length - 1];
 
@@ -124,11 +124,11 @@ export default function SearchPage() {
       </section>
       <article className="w-full max-w-screen-sm p-6 text-lg text-gray-700">
         <p>
-          I've often found it frustating trying to find new music.
+          I&apos;ve often found it frustating trying to find new music.
         </p>
         <p className="mt-2">
-          I love stumbling across new artists through recommendations, but sometimes you want something that scratches a certain itch, after you've listened to the entire back catalogue of your current band of the week.
-          This is a tool to help you find similar bands, and not just the most popular ones. It uses OpenAI's GPT 3.5-turbo model, to provide immediate recommendations.
+          I love stumbling across new artists through recommendations, but sometimes you want something that scratches a certain itch, after you&apos;ve listened to the entire back catalogue of your current band of the week.
+          This is a tool to help you find similar bands, and not just the most popular ones. It uses OpenAI&apos;s GPT 3.5-turbo model, to provide immediate recommendations.
         </p>
       </article>
 
