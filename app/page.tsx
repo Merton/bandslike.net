@@ -54,11 +54,18 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
     });
 
   const onSubmit = (e: any) => {
-    console.log("Submitting", input)
     setArtist(input);
     setInput(input)
     handleSubmit(e);
   };
+
+  const updateSelectedSearch = (search: Search) => {
+    const params = new URLSearchParams()
+    params.set("queryArtist", search.originalArtist)
+    router.push(pathname + "?" + params.toString())
+    setSelectedSearch(search);
+    return search
+  }
 
   const recordSearchResult = (result: string) => {
     try {
@@ -69,8 +76,8 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
         results: adjacencyList,
       }
       setSearches([...searches, newSearch]);
-      setSelectedSearch(newSearch);
-      router.push(pathname + "?queryArtist=" + originalArtist)
+      updateSelectedSearch(newSearch);
+      
     } catch (e) {
       setError('Could not parse GPT response: ' + e + " " + result);
     }
@@ -83,7 +90,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
   const handleNodeClick = (node: { id: string }) => {
     const previouslySearched = searches.find(search => search.originalArtist.toLowerCase() === node.id.toLowerCase());
     if (previouslySearched) {
-      setSelectedSearch(previouslySearched);
+      updateSelectedSearch(previouslySearched);
     } else {
       setArtist(node.id);
       setError(null);
@@ -166,7 +173,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
       <section className="w-full px-6 py-6">
         <div className="max-w-screen-lg m-auto">
           {searches.length > 1 &&
-            <SearchHistory onClick={(i) => { console.log("Clicked, ", i); setSelectedSearch(searches[i]) }} searches={searches}></SearchHistory>
+            <SearchHistory onClick={(i) => { updateSelectedSearch(searches[i]) }} searches={searches}></SearchHistory>
           }
           {isLoading ?
             (<div className="flex flex-col items-center my-12">
