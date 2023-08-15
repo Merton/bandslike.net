@@ -26,10 +26,10 @@ type AdjacencyList = {
 }
 
 const parseResponse = (response: string): Result => {
-    return JSON.parse(response);
+  return JSON.parse(response);
 }
 
-export default function HomePage() {
+export default function SearchPage() {
   const [artist, setArtist] = useState("");
   const [searches, setSearches] = useState<Search[]>([]);
   const [selectedSearch, setSelectedSearch] = useState<Search | null>(null);
@@ -109,18 +109,26 @@ export default function HomePage() {
             </div>
           </form>
         </div>
-        {/* <p className="mt-2 mb-2">Designed to help you get out of your music rut by finding similar bands, <br /> and not just the most popular ones.</p> */}
       </section>
       <section className="w-full px-12 py-6">
         <div className="max-w-screen-lg m-auto">
-        {messages.length > 0 && <SearchHistory onClick={() => {}} searches={searches}></SearchHistory>}
-        {isLoading ? <Progress value={loadingProgress} className="mt-12 mb-12" /> : <>
-          {selectedSearch && (
-            <BandNetwork data={selectedSearch} />
-          )}</>
-        }
+          {messages.length > 0 && <SearchHistory onClick={() => { }} searches={searches}></SearchHistory>}
+          {isLoading ? <Progress value={loadingProgress} className="mt-12 mb-12" /> : <>
+            {selectedSearch && (
+              <BandNetwork data={selectedSearch} />
+            )}</>
+          }
         </div>
       </section>
+      <article className="w-full px-32 py-6 text-lg text-gray-700">
+        <p>
+          I've often found it frustating trying to find new music.
+        </p>
+        <p className="mt-2">
+          I love stumbling across new artists through recommendations, but sometimes you want something that scratches a certain itch, after you've listened to the entire back catalogue of your current band of the week.
+          This is a tool to help you find similar bands, and not just the most popular ones. It uses OpenAI's GPT 3.5-turbo model, to provide immediate recommendations.
+        </p>
+      </article>
 
       {error && <p className="text-red-500">Ah, somethings gone wrong. This happens, give it another go <br />{error}</p>}
     </main>
