@@ -57,9 +57,11 @@ const getNodeColour = (node: { id: string, level: number }, artists: ArtistTypes
 
 
 export const BandNetwork = ({
-  data
+  data,
+  onNodeClick
 }: {
-  data: Search
+  data: Search,
+  onNodeClick: (node: { id: string }) => void
 }) => {
   const { nodes, links, artists } = formatIntoGraphData(data);
 
@@ -70,7 +72,7 @@ export const BandNetwork = ({
 
   return (
     <div className="border-2 border-solid overflow-hidden border-zinc-400 rounded-lg">
-      <ForceGraph data={graphData} nodeColor={(node) => getNodeColour(node as Node, artists)} />
+      <ForceGraph onNodeClick={onNodeClick} data={graphData} nodeColor={(node) => getNodeColour(node as Node, artists)} />
     </div>
   )
 

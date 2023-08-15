@@ -5,13 +5,15 @@ import ForceGraph2D from 'react-force-graph-2d';
 
 export default function ForceGraph({
     data,
-    nodeColor
+    nodeColor,
+    onNodeClick,
 }: {
     data: {
         nodes: { id: string }[],
         links: { source: string; target: string }[]
     },
-    nodeColor: (node: { id: string }) => string
+    nodeColor: (node: { id: string }) => string,
+    onNodeClick: (node: { id: string }) => void,
 }) {
     const fgRef = useRef<any>();
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
@@ -58,12 +60,7 @@ export default function ForceGraph({
             }}
             nodeColor={(node) => nodeColor(node)}
             nodeLabel={(node) => `<div><h1><strong>${node.id}</strong></h1>`}
-            onNodeClick={(node) => {
-                // Open URL
-                if (node.url) {
-                    window.open(node.url, '_blank');
-                }
-            }}
+            onNodeClick={onNodeClick}
         />
     )
 }

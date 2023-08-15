@@ -40,6 +40,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
   const [searches, setSearches] = useState<Search[]>([]);
   const [selectedSearch, setSelectedSearch] = useState<Search | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [nodeClicked, setNodeClicked] = useState(false);
 
   const pathname = usePathname()
   const router = useRouter()
@@ -53,6 +54,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
     });
 
   const onSubmit = (e: any) => {
+    console.log("Submitting", input)
     setArtist(input);
     setInput(input)
     handleSubmit(e);
@@ -72,6 +74,10 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
     } catch (e) {
       setError('Could not parse GPT response: ' + e + " " + result);
     }
+  }
+
+  const submitForm = () => {
+    onSubmit(new Event('submit'))
   }
 
   useEffect(() => {
@@ -94,10 +100,30 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
 
   useEffect(() => {
     if (queryArtist === input && queryArtist !== selectedSearch?.originalArtist) {
-      onSubmit(new Event('submit'));
+      submitForm();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryArtist, input])
+
+  useEffect(() => {
+    if (nodeClicked) {
+      setNodeClicked(false);
+      submitForm()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodeClicked])
+
+  const handleNodeClick = (node: { id: string }) => {
+    // on click perform a new search for the node
+    console.log("Node clicked", node.id)
+    setArtist(node.id);
+    setError(null);
+    setInput(node.id);
+    setNodeClicked(true);
+  }
+
+
+
 
 
 
@@ -151,7 +177,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
             </div>)
             : <>
               {selectedSearch && (
-                <BandNetwork data={selectedSearch} />
+                <BandNetwork onNodeClick={handleNodeClick} data={selectedSearch} />
               )}</>
           }
         </div>
