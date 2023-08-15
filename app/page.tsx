@@ -29,7 +29,11 @@ const parseResponse = (response: string): Result => {
   return JSON.parse(response);
 }
 
-export default function SearchPage() {
+export default function SearchPage({ searchParams: { queryArtist } }: {
+  searchParams: {
+    queryArtist: string;
+  }
+}) {
   const [artist, setArtist] = useState("");
   const [searches, setSearches] = useState<Search[]>([]);
   const [selectedSearch, setSelectedSearch] = useState<Search | null>(null);
@@ -60,7 +64,7 @@ export default function SearchPage() {
       setSearches([...searches, newSearch]);
       setSelectedSearch(newSearch);
     } catch (e) {
-      setError('Could not parse GPT response: ' + e);
+      setError('Could not parse GPT response: ' + e + " " + result);
     }
   }
 
@@ -71,7 +75,26 @@ export default function SearchPage() {
         recordSearchResult(gptRecommendations);
       }
     }
-  }, [isLoading, messages, recordSearchResult])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, messages])
+
+  useEffect(() => {
+    if (queryArtist) {
+      setInput(queryArtist);
+      setArtist(queryArtist);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryArtist])
+
+  useEffect(() => {
+    if (queryArtist === input) {
+      onSubmit(new Event('submit'));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryArtist, input])
+
+
+
 
   const lastMessage = messages[messages.length - 1];
 
@@ -112,13 +135,18 @@ export default function SearchPage() {
       </section>
       <section className="w-full px-12 py-6">
         <div className="max-w-screen-lg m-auto">
-          {messages.length > 0 &&
+          {searches.length > 1 &&
             <SearchHistory onClick={(i) => { console.log("Clicked, ", i); setSelectedSearch(searches[i]) }} searches={searches}></SearchHistory>
           }
-          {isLoading ? <Progress value={loadingProgress} className="mt-12 mb-12" /> : <>
-            {selectedSearch && (
-              <BandNetwork data={selectedSearch} />
-            )}</>
+          {isLoading ?
+            (<div className="flex flex-col items-center my-12">
+              <h3>Finding similar bands to {artist}</h3>
+              <Progress value={loadingProgress} className="mt-4" />
+            </div>)
+            : <>
+              {selectedSearch && (
+                <BandNetwork data={selectedSearch} />
+              )}</>
           }
         </div>
       </section>
@@ -127,8 +155,10 @@ export default function SearchPage() {
           I&apos;ve often found it frustating trying to find new music.
         </p>
         <p className="mt-2">
-          I love stumbling across new artists through recommendations, but sometimes you want something that scratches a certain itch, after you&apos;ve listened to the entire back catalogue of your current band of the week.
-          This is a tool to help you find similar bands, and not just the most popular ones. It uses OpenAI&apos;s GPT 3.5-turbo model, to provide immediate recommendations.
+          I love stumbling across new artists through recommendations, but sometimes you want something that scratches a certain itch, after you&apos;ve listened to the entire back catalogue of your favourite band of the week.
+        </p>
+        <p className="mt-2">
+          So this is a tool to help you find similar bands, <br />and not just the most popular ones.
         </p>
       </article>
 

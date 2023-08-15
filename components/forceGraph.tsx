@@ -24,7 +24,7 @@ export default function ForceGraph({
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            setWindowSize({ width: window.innerWidth * 0.8, height: window.innerHeight * 0.7 });
+            setWindowSize({ width: window.innerWidth * 0.7, height: window.innerHeight * 0.7 });
         }
     }, []);
 
@@ -36,6 +36,8 @@ export default function ForceGraph({
         <ForceGraph2D
             width={windowSize.width}
             height={windowSize.height}
+            maxZoom={5}
+            minZoom={3}
             ref={fgRef}
             onEngineStop={onLoad}
             cooldownTicks={20}

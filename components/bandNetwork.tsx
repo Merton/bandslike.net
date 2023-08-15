@@ -69,7 +69,9 @@ export const BandNetwork = ({
   }
 
   return (
-    <ForceGraph data={graphData} nodeColor={(node) => getNodeColour(node as Node, artists)} />
+    <div className="border-2 border-solid overflow-hidden border-zinc-400 rounded-lg">
+      <ForceGraph data={graphData} nodeColor={(node) => getNodeColour(node as Node, artists)} />
+    </div>
   )
 
 }

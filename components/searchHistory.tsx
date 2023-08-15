@@ -30,7 +30,7 @@ export const SearchHistory = ({
 
   useEffect(() => {
     setSelectedIndex(searches.length - 1)
-  }, [searches])
+  }, [searches, setSelectedIndex])
 
   return (
     <Collapsible
@@ -38,7 +38,7 @@ export const SearchHistory = ({
       onOpenChange={setIsOpen}
       className="flex"
     >
-      <div className="h-[100px]">
+      <div>
         {searches.length > 1 && (
           <CollapsibleTrigger asChild>
             <Button size="lg" className="p-2 px-4 hover:text-white hover:bg-secondary">
@@ -53,7 +53,7 @@ export const SearchHistory = ({
       </div>
       <CollapsibleContent className="flex flex-wrap">
         {searches.map((search, i) => (
-          <div onClick={() => selectSearch(i)} key={i} className={`ml-2 text-white rounded-md px-4 py-3 font-mono text-sm hover:bg-slate-700 hover:cursor-pointer ${selectedIndex == i ? "bg-green-400" : "bg-slate-500" }`}>
+          <div onClick={() => selectSearch(i)} key={i} className={`ml-2 h-fit text-white rounded-md px-4 py-3 font-mono text-sm hover:bg-slate-700 hover:cursor-pointer ${selectedIndex == i ? "bg-green-400" : "bg-slate-500" }`}>
             {search.originalArtist}
           </div>
         ))}
