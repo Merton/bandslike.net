@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { BandNetwork } from "@/components/bandNetwork";
 
 const AVERAGE_RESPONSE_LENGTH = 400;
-const NUM_RECOMMENDATIONS = 5;
+const NUM_RECOMMENDATIONS = 3;
 
 export type Search = {
   originalArtist: string;
@@ -112,7 +112,9 @@ export default function SearchPage() {
       </section>
       <section className="w-full px-12 py-6">
         <div className="max-w-screen-lg m-auto">
-          {messages.length > 0 && <SearchHistory onClick={() => { }} searches={searches}></SearchHistory>}
+          {messages.length > 0 &&
+            <SearchHistory onClick={(i) => { console.log("Clicked, ", i); setSelectedSearch(searches[i]) }} searches={searches}></SearchHistory>
+          }
           {isLoading ? <Progress value={loadingProgress} className="mt-12 mb-12" /> : <>
             {selectedSearch && (
               <BandNetwork data={selectedSearch} />
@@ -120,7 +122,7 @@ export default function SearchPage() {
           }
         </div>
       </section>
-      <article className="w-full px-32 py-6 text-lg text-gray-700">
+      <article className="w-full max-w-screen-sm p-6 text-lg text-gray-700">
         <p>
           I've often found it frustating trying to find new music.
         </p>
