@@ -1,7 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import { Analytics } from '@vercel/analytics/react';
 import { Jost } from 'next/font/google'
-
 const jost = Jost({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -21,7 +21,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={jost.className}>{children}</body>
+      <body className={jost.className}>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }
