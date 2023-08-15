@@ -21,10 +21,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={jost.className}>
+      <body className={`${jost.className} flex flex-col`}>
         {children}
+        <footer className="fixed bottom-0 left-0 w-full bg-slate-300">
+          <div className="w-full max-w-screen-lg mx-auto px-3 sm:px-0 py-6">
+            <p className="text-gray-700">Made by <a href="https://github.com/merton" target="_blank" className="text-blue-700 hover:underline">Merton Lansley</a></p>
+          </div>
+        </footer>
         <Analytics />
       </body>
+
     </html>
   )
 }

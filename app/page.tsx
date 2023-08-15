@@ -77,7 +77,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
       }
       setSearches([...searches, newSearch]);
       updateSelectedSearch(newSearch);
-      
+
     } catch (e) {
       setError('Could not parse GPT response: ' + e + " " + result);
     }
@@ -88,13 +88,18 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
   }
 
   const handleNodeClick = (node: { id: string }) => {
-    const previouslySearched = searches.find(search => search.originalArtist.toLowerCase() === node.id.toLowerCase());
+    newSearch(node.id);
+  }
+
+  const newSearch = (searchArtist: string) => {
+    const previouslySearched = searches.find(search => search.originalArtist.toLowerCase() === searchArtist.toLowerCase());
+    setError(null);
+
     if (previouslySearched) {
       updateSelectedSearch(previouslySearched);
     } else {
-      setArtist(node.id);
-      setError(null);
-      setInput(node.id);
+      setArtist(searchArtist);
+      setInput(searchArtist);
       setNodeClicked(true);
     }
   }
@@ -138,9 +143,9 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
   const loadingProgress = lastMessage ? lastMessage.content.length / AVERAGE_RESPONSE_LENGTH * 100 : 0;
 
   return (
-    <main className="flex min-h-screen flex-col items-center">
-      <section className="w-full bg-primary p-12">
-        <div className="flex flex-wrap items-center max-w-screen-lg m-auto">
+    <main className="mb-[100px]">
+      <section className="w-full bg-primary px-3 sm:px-12 py-12">
+        <div className="flex flex-wrap items-center max-w-screen-lg mx-auto">
           <h1 className="text-4xl min-w-fit md:w-2/5 text-primary-foreground">
             Bands like...<br /><span className="text-cyan-300 underline">{artist}</span>
           </h1>
@@ -170,10 +175,10 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
           </form>
         </div>
       </section>
-      <section className="w-full px-6 py-6">
-        <div className="max-w-screen-lg m-auto">
+      <section className="w-full max-w-screen-lg mx-auto px-3 sm:px-0">
+        <div className="py-6">
           {searches.length > 1 &&
-            <SearchHistory onClick={(i) => { updateSelectedSearch(searches[i]) }} searches={searches}></SearchHistory>
+            <div className="mb-4"><SearchHistory onClick={(i) => { updateSelectedSearch(searches[i]) }} searches={searches}></SearchHistory></div>
           }
           {isLoading ?
             (<div className="flex flex-col items-center my-12">
@@ -186,20 +191,40 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
               )}</>
           }
         </div>
+        {error && <p className="text-red-500">Ah, somethings gone wrong. This happens, give it another go <br />{error}</p>}
+
       </section>
-      <article className="w-full max-w-screen-sm p-6 text-lg text-gray-700">
-        <p>
-          I&apos;ve often found it frustating trying to find new music.
-        </p>
-        <p className="mt-2">
-          I love stumbling across new artists through recommendations, but sometimes you want something that scratches a certain itch, after you&apos;ve listened to the entire back catalogue of your favourite band of the week.
-        </p>
-        <p className="mt-2">
-          So this is a tool to help you find similar bands, <br />and not just the most popular ones.
-        </p>
+      <article className="w-full max-w-screen-lg mx-auto px-3 sm:px-0">
+        {!isLoading &&
+          <section className="">
+            <h2 className="text-2xl font-bold text-gray-900">Bands similar to {artist}</h2>
+            <ul className="">
+              {selectedSearch?.results.map(({ artist, similarArtists }, i) => (
+                <li key={i} className="mb-2">
+                  <span className="hover:cursor-pointer" onClick={() => newSearch(artist)}>{artist}</span>
+                  <ul className="ml-6">
+                    {similarArtists.map((similarArtist, j) => (
+                      <li key={j}><span className="hover:cursor-pointer" onClick={() => newSearch(similarArtist)}>{similarArtist}</span></li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </section>
+        }
+        <section className=" text-gray-700">
+          <p>
+            I&apos;ve often found it frustating trying to find new music.
+          </p>
+          <p className="mt-2">
+            I love stumbling across new artists through recommendations, but sometimes you want something that scratches a certain itch, after you&apos;ve listened to the entire back catalogue of your favourite band of the week.
+          </p>
+          <p className="mt-2">
+            So this is a tool to help you find similar bands, <br />and not just the most popular ones.
+          </p>
+        </section>
       </article>
 
-      {error && <p className="text-red-500">Ah, somethings gone wrong. This happens, give it another go <br />{error}</p>}
     </main>
   )
 }
