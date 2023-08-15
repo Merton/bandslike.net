@@ -139,7 +139,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
           </form>
         </div>
       </section>
-      <section className="w-full px-12 py-6">
+      <section className="w-full px-6 py-6">
         <div className="max-w-screen-lg m-auto">
           {searches.length > 1 &&
             <SearchHistory onClick={(i) => { console.log("Clicked, ", i); setSelectedSearch(searches[i]) }} searches={searches}></SearchHistory>
