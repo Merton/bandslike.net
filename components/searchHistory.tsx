@@ -9,15 +9,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { Search } from "@/app/page"
 
 export const SearchHistory = ({
   searches,
+  onClick
 }: {
-  searches: { role: string; content: string }[]
+  searches: Search[],
+  onClick: (i: number) => void
 }) => {
   const [isOpen, setIsOpen] = React.useState(false)
-
-  const recentSearch = searches[searches.length - 1]
 
   return (
     <Collapsible
@@ -40,8 +41,8 @@ export const SearchHistory = ({
       </div>
       <CollapsibleContent className="space-y-2 absolute">
         {searches.slice(0, -1).map((search, i) => (
-          <div key={i} className=" bg-slate-500 text-white rounded-md border px-4 py-3 font-mono text-sm">
-            {search.content}
+          <div onClick={() => onClick(i)} key={i} className=" bg-slate-500 text-white rounded-md border px-4 py-3 font-mono text-sm">
+            {search.originalArtist}
           </div>
         ))}
       </CollapsibleContent>

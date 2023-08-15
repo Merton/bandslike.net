@@ -1,62 +1,79 @@
 'use client';
 
+import { Search } from '@/app/page';
 import dynamic from 'next/dynamic'
 
 const ForceGraph = dynamic(() => import('../components/forceGraph'), { ssr: false });
 
-type Results = {
-    original_artist: string,
-    adjacency_list: { [source: string]: string[] }[]
-  }
+type Node = {
+    id: string,
+    level: number
+}
+type ArtistTypes = {
+    source: string,
+    immediate: string[],
+    secondary: string[]
+}
+const formatIntoGraphData = ({originalArtist, results}: Search) => {
+    const artistNode = { id: originalArtist, level: 0 };    
+    const immediateNodes = results.map(({artist}) => ({id: artist, level: 1}));
+    console.log("Immediate Nodes", immediateNodes)
+    const secondaryNodes = results.map(({similarArtists}) => similarArtists.map((artist) => ({id: artist, level: 2}))).flat();
 
-const formatIntoGraphData = (originalArtist: string, results: Results) => {
-    // Combine all artists from recommendations and adjacency_list
-    const otherArtists = results.adjacency_list.map((adjacency) => [Object.keys(adjacency)[0], ...adjacency[Object.keys(adjacency)[0]]]).flat();
-    const allArtists = [originalArtist, ...otherArtists];
-
-    // Remove duplicates
-    const nodes = Array.from(new Set(allArtists)).map((artist) => ({ id: artist }));
   
-    const links = results.adjacency_list.map((adjacency) => {
-      const source = Object.keys(adjacency)[0];
-      const targets = adjacency[source];
-      return targets.map((target: string) => ({ source, target }))
+    const links = results.map(({artist, similarArtists}) => {
+      return similarArtists.map((target: string) => ({ source: artist, target }))
     }).flat();
   
-    const topLevelArtists = [...results.adjacency_list.map((adjacency) => Object.keys(adjacency)[0])];
-    links.push(...topLevelArtists.map((artist) => ({ source: originalArtist, target: artist })));
-  
-  
-    return { nodes, links, otherArtists }
+    links.push(...immediateNodes.map(({id}) => ({ source: originalArtist, target: id })));
+    
+    let nodes = [artistNode, ...immediateNodes, ...secondaryNodes];
+    // Remove duplicate nodes based on ID
+    nodes = nodes.filter((node, index, self) => self.findIndex((n) => n.id === node.id) === index);
+
+    const artists = {
+      source: originalArtist,
+      immediate: immediateNodes.map(({id}) => id),
+      secondary: secondaryNodes.map(({id}) => id)
+    }
+
+    return { nodes, links, artists }
   }
 
-  const getNodeColour = (node: { id: string}, originalArtist: string, otherArtists: string[]) => {
-    if (node.id === originalArtist) {
+  const getNodeColour = (node: { id: string, level: number}, artists: ArtistTypes) => {
+    if (node.level === 0) {
       return '#7400B8'
     }
-    if (otherArtists.includes(node.id)) {
+    if (node.level === 1) {
         return '#5E60CE'
         }
+
+    if (node.level === 2) {
+      // Red hex
+      return '#4ea7df'
+    }
+
     return '#5E60CE'
   }
 
 
 export const BandNetwork = ({
-    originalArtist,
-    results
+    data
 }: {
-    originalArtist: string,
-    results: Results
+    data: Search
 }) => {
-    const { nodes, links, otherArtists } = formatIntoGraphData(originalArtist, results);
-
+    console.log("Search", data);
+    const { nodes, links, artists } = formatIntoGraphData(data);
+    console.log("Nodes", nodes);
+    console.log("Links", links);
+    console.log("Other Artists", artists);
     const graphData = {
         nodes,
         links
     }
 
     return (
-        <ForceGraph data={graphData} nodeColor={(node) => getNodeColour(node, originalArtist, otherArtists)}/>
+        <ForceGraph data={graphData} nodeColor={(node) => getNodeColour(node as Node, artists)}/>
     )
 
 }

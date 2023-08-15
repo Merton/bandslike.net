@@ -1,21 +1,45 @@
 'use client';
 
 import { useChat } from "ai/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SearchHistory } from '@/components/searchHistory';
 import { Progress } from '@/components/ui/progress';
 import { BandNetwork } from "@/components/bandNetwork";
 
+const AVERAGE_RESPONSE_LENGTH = 400;
+const NUM_RECOMMENDATIONS = 5;
+
+export type Search = {
+  originalArtist: string;
+  amount: number;
+  results: AdjacencyList[];
+}
+
+type Result = {
+  originalArtist: string;
+  adjacencyList: AdjacencyList[];
+}
+
+type AdjacencyList = {
+  artist: string;
+  similarArtists: string[];
+}
+
+const parseResponse = (response: string): Result => {
+    return JSON.parse(response);
+}
 
 export default function HomePage() {
   const [artist, setArtist] = useState("");
-  const amount = 3;
+  const [searches, setSearches] = useState<Search[]>([]);
+  const [selectedSearch, setSelectedSearch] = useState<Search | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const { input, setInput, handleInputChange, handleSubmit, isLoading, messages } =
     useChat({
       body: {
         artist,
-        amount,
+        amount: NUM_RECOMMENDATIONS,
       }
     });
 
@@ -25,24 +49,33 @@ export default function HomePage() {
     handleSubmit(e);
   };
 
-  const lastMessage = messages[messages.length - 1];
-  let recommendations = null;
-  let error = null;
-
-  if (!isLoading) {
-    const message = lastMessage?.role === "assistant" ? lastMessage.content : null;
+  const recordSearchResult = (result: string) => {
     try {
-      if (message) {
-        console.log("Message length", message.length)
-        recommendations = JSON.parse(message);
+      const { originalArtist, adjacencyList } = parseResponse(result);
+      const newSearch = {
+        originalArtist,
+        amount: NUM_RECOMMENDATIONS,
+        results: adjacencyList,
       }
+      setSearches([...searches, newSearch]);
+      setSelectedSearch(newSearch);
     } catch (e) {
-      error = e + "\n" + message
+      setError('Could not parse GPT response: ' + e);
     }
   }
 
-  const averageResponseLength = 400
-  const loadingProgress = lastMessage ? lastMessage.content.length / averageResponseLength * 100 : 0;
+  useEffect(() => {
+    if (!isLoading && messages.length > 1) {
+      const gptRecommendations = messages[messages.length - 1]?.role === "assistant" ? messages[messages.length - 1].content : null;
+      if (gptRecommendations) {
+        recordSearchResult(gptRecommendations);
+      }
+    }
+  }, [isLoading, messages])
+
+  const lastMessage = messages[messages.length - 1];
+
+  const loadingProgress = lastMessage ? lastMessage.content.length / AVERAGE_RESPONSE_LENGTH * 100 : 0;
 
   return (
     <main className="flex min-h-screen flex-col items-center">
@@ -80,10 +113,10 @@ export default function HomePage() {
       </section>
       <section className="w-full px-12 py-6">
         <div className="max-w-screen-lg m-auto">
-        {messages.length > 0 && <SearchHistory searches={messages.filter((m) => m.role === 'user')}></SearchHistory>}
+        {messages.length > 0 && <SearchHistory onClick={() => {}} searches={searches}></SearchHistory>}
         {isLoading ? <Progress value={loadingProgress} className="mt-12 mb-12" /> : <>
-          {recommendations && (
-            <BandNetwork originalArtist={artist} results={recommendations} />
+          {selectedSearch && (
+            <BandNetwork data={selectedSearch} />
           )}</>
         }
         </div>

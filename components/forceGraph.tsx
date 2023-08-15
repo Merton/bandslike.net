@@ -13,7 +13,7 @@ export default function ForceGraph({
     },
     nodeColor: (node: { id: string }) => string
 }) {
-    const fgRef = useRef();
+    const fgRef = useRef<Any>();
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
     const onLoad = () => {
@@ -30,10 +30,8 @@ export default function ForceGraph({
     }, []);
 
     if (!windowSize.width || !windowSize.height) {
-        console.log('no windowSize')
         return null;
     }
-    console.log('windowSize', windowSize)
 
     return (
         <ForceGraph2D

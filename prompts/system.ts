@@ -6,9 +6,9 @@ You should priotiize the genre and musical style of the artist, and then the oth
 
 Respond with a valid JSON object, in this format:
 {
-    "original_artist": string
-    "adjacency_list": [
-        { [artist_name: string]: string[] },
+    "originalArtist": string
+    "adjacencyList": [
+        {"artist": string, "similarArtists": string[]},
     ]
 }
 
