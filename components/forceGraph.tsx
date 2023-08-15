@@ -45,6 +45,17 @@ export default function ForceGraph({
             linkWidth={(link) => link.width}
             linkDirectionalParticles={3}
             linkDirectionalParticleSpeed={0.001}
+            nodeCanvasObjectMode={() => 'after'}
+            nodeCanvasObject={(node, ctx, globalScale) => {
+                const label = node.id;
+                const fontSize = 12 / globalScale;
+                ctx.font = `${fontSize}px Sans-Serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'black'; //node.color;
+                
+                ctx.fillText(label, node.x ?? 0, (node.y ?? 0) + 6 );
+            }}
             nodeColor={(node) => nodeColor(node)}
             nodeLabel={(node) => `<div><h1><strong>${node.id}</strong></h1>`}
             onNodeClick={(node) => {
