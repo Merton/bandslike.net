@@ -6,6 +6,8 @@ import { SearchHistory } from '@/components/searchHistory';
 import { Progress } from '@/components/ui/progress';
 import { BandNetwork } from "@/components/bandNetwork";
 
+import { usePathname, useRouter } from 'next/navigation'
+
 const AVERAGE_RESPONSE_LENGTH = 400;
 const NUM_RECOMMENDATIONS = 3;
 
@@ -39,6 +41,9 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
   const [selectedSearch, setSelectedSearch] = useState<Search | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const pathname = usePathname()
+  const router = useRouter()
+  
   const { input, setInput, handleInputChange, handleSubmit, isLoading, messages } =
     useChat({
       body: {
@@ -63,6 +68,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
       }
       setSearches([...searches, newSearch]);
       setSelectedSearch(newSearch);
+      router.push(pathname + "?queryArtist=" + originalArtist)
     } catch (e) {
       setError('Could not parse GPT response: ' + e + " " + result);
     }
@@ -87,7 +93,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
   }, [queryArtist])
 
   useEffect(() => {
-    if (queryArtist === input) {
+    if (queryArtist === input && queryArtist !== selectedSearch?.originalArtist) {
       onSubmit(new Event('submit'));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
