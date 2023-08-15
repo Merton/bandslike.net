@@ -13,7 +13,7 @@ export default function ForceGraph({
     },
     nodeColor: (node: { id: string }) => string
 }) {
-    const fgRef = useRef<Any>();
+    const fgRef = useRef<any>();
     const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
     const onLoad = () => {
@@ -21,7 +21,6 @@ export default function ForceGraph({
             fgRef.current.zoomToFit(500, 10);
         }
     }
-    
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
