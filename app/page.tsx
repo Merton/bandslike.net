@@ -44,7 +44,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
 
   const pathname = usePathname()
   const router = useRouter()
-  
+
   const { input, setInput, handleInputChange, handleSubmit, isLoading, messages } =
     useChat({
       body: {
@@ -80,6 +80,18 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
     onSubmit(new Event('submit'))
   }
 
+  const handleNodeClick = (node: { id: string }) => {
+    const previouslySearched = searches.find(search => search.originalArtist.toLowerCase() === node.id.toLowerCase());
+    if (previouslySearched) {
+      setSelectedSearch(previouslySearched);
+    } else {
+      setArtist(node.id);
+      setError(null);
+      setInput(node.id);
+      setNodeClicked(true);
+    }
+  }
+
   useEffect(() => {
     if (!isLoading && messages.length > 1) {
       const gptRecommendations = messages[messages.length - 1]?.role === "assistant" ? messages[messages.length - 1].content : null;
@@ -112,20 +124,6 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodeClicked])
-
-  const handleNodeClick = (node: { id: string }) => {
-    // on click perform a new search for the node
-    console.log("Node clicked", node.id)
-    setArtist(node.id);
-    setError(null);
-    setInput(node.id);
-    setNodeClicked(true);
-  }
-
-
-
-
-
 
 
   const lastMessage = messages[messages.length - 1];
