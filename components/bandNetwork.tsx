@@ -1,6 +1,6 @@
 'use client';
 
-import { Search } from '@/app/page';
+import { Search } from '@/app/[artistSlug]/page';
 import dynamic from 'next/dynamic'
 
 const ForceGraph = dynamic(() => import('../components/forceGraph'), { ssr: false });
