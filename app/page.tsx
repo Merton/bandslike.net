@@ -8,139 +8,20 @@ import { BandNetwork } from "@/components/bandNetwork";
 
 import { usePathname, useRouter } from 'next/navigation'
 
-const AVERAGE_RESPONSE_LENGTH = 400;
-const NUM_RECOMMENDATIONS = 3;
-
-export type Search = {
-  originalArtist: string;
-  amount: number;
-  results: AdjacencyList[];
-}
-
-type Result = {
-  originalArtist: string;
-  adjacencyList: AdjacencyList[];
-}
-
-type AdjacencyList = {
-  artist: string;
-  similarArtists: string[];
-}
-
-const parseResponse = (response: string): Result => {
-  return JSON.parse(response);
-}
-
-export default function SearchPage({ searchParams: { queryArtist } }: {
-  searchParams: {
-    queryArtist: string;
-  }
-}) {
+export default function HomePage() {
   const [artist, setArtist] = useState("");
-  const [searches, setSearches] = useState<Search[]>([]);
-  const [selectedSearch, setSelectedSearch] = useState<Search | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [nodeClicked, setNodeClicked] = useState(false);
 
   const pathname = usePathname()
   const router = useRouter()
 
-  const { input, setInput, handleInputChange, handleSubmit, isLoading, messages } =
-    useChat({
-      body: {
-        artist,
-        amount: NUM_RECOMMENDATIONS,
-      }
-    });
-
   const onSubmit = (e: any) => {
-    setArtist(input);
-    setInput(input)
-    handleSubmit(e);
+    e.preventDefault();
+    console.log("onSubmit", artist)
+    const artistSlug = encodeURIComponent(artist)
+    console.log("artistSlug", artistSlug)
+    console.log("pathname", pathname + artistSlug)
+    router.push(pathname + artistSlug)
   };
-
-  const updateSelectedSearch = (search: Search) => {
-    const params = new URLSearchParams()
-    params.set("queryArtist", search.originalArtist)
-    router.push(pathname + "?" + params.toString())
-    setSelectedSearch(search);
-    return search
-  }
-
-  const recordSearchResult = (result: string) => {
-    try {
-      const { originalArtist, adjacencyList } = parseResponse(result);
-      const newSearch = {
-        originalArtist,
-        amount: NUM_RECOMMENDATIONS,
-        results: adjacencyList,
-      }
-      setSearches([...searches, newSearch]);
-      updateSelectedSearch(newSearch);
-
-    } catch (e) {
-      setError('Could not parse GPT response: ' + e + " " + result);
-    }
-  }
-
-  const submitForm = () => {
-    onSubmit(new Event('submit'))
-  }
-
-  const handleNodeClick = (node: { id: string }) => {
-    newSearch(node.id);
-  }
-
-  const newSearch = (searchArtist: string) => {
-    const previouslySearched = searches.find(search => search.originalArtist.toLowerCase() === searchArtist.toLowerCase());
-    setError(null);
-
-    if (previouslySearched) {
-      updateSelectedSearch(previouslySearched);
-    } else {
-      setArtist(searchArtist);
-      setInput(searchArtist);
-      setNodeClicked(true);
-    }
-  }
-
-  useEffect(() => {
-    if (!isLoading && messages.length > 1) {
-      const gptRecommendations = messages[messages.length - 1]?.role === "assistant" ? messages[messages.length - 1].content : null;
-      if (gptRecommendations) {
-        recordSearchResult(gptRecommendations);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, messages])
-
-  useEffect(() => {
-    if (queryArtist) {
-      setInput(queryArtist);
-      setArtist(queryArtist);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryArtist])
-
-  useEffect(() => {
-    if (queryArtist === input && queryArtist !== selectedSearch?.originalArtist) {
-      submitForm();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryArtist, input])
-
-  useEffect(() => {
-    if (nodeClicked) {
-      setNodeClicked(false);
-      submitForm()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodeClicked])
-
-
-  const lastMessage = messages[messages.length - 1];
-
-  const loadingProgress = lastMessage ? lastMessage.content.length / AVERAGE_RESPONSE_LENGTH * 100 : 0;
 
   return (
     <main className="mb-[100px]">
@@ -158,11 +39,8 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
                 </svg>
               </div>
               <input
-                value={input}
-                onChange={(e) => {
-                  setArtist(e.target.value)
-                  handleInputChange(e);
-                }}
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
                 placeholder="bands like..."
                 required
                 enterKeyHint="go"
@@ -175,43 +53,7 @@ export default function SearchPage({ searchParams: { queryArtist } }: {
           </form>
         </div>
       </section>
-      <section className="w-full max-w-screen-lg mx-auto px-3 sm:px-0">
-        <div className="py-6">
-          {searches.length > 1 &&
-            <div className="mb-4"><SearchHistory onClick={(i) => { updateSelectedSearch(searches[i]) }} searches={searches}></SearchHistory></div>
-          }
-          {isLoading ?
-            (<div className="flex flex-col items-center my-12">
-              <h3>Finding similar bands to {artist}</h3>
-              <Progress value={loadingProgress} className="mt-4" />
-            </div>)
-            : <>
-              {selectedSearch && (
-                <BandNetwork onNodeClick={handleNodeClick} data={selectedSearch} />
-              )}</>
-          }
-        </div>
-        {error && <p className="text-red-500">Ah, somethings gone wrong. This happens, give it another go <br />{error}</p>}
-
-      </section>
       <article className="w-full max-w-screen-lg mx-auto px-3 sm:px-0">
-        {!isLoading &&
-          <section className="">
-            <h2 className="text-2xl font-bold text-gray-900">Bands similar to {artist}</h2>
-            <ul className="">
-              {selectedSearch?.results.map(({ artist, similarArtists }, i) => (
-                <li key={i} className="mb-2">
-                  <span className="hover:cursor-pointer" onClick={() => newSearch(artist)}>{artist}</span>
-                  <ul className="ml-6">
-                    {similarArtists.map((similarArtist, j) => (
-                      <li key={j}><span className="hover:cursor-pointer" onClick={() => newSearch(similarArtist)}>{similarArtist}</span></li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </section>
-        }
         <section className=" text-gray-700">
           <p>
             I&apos;ve often found it frustating trying to find new music.
