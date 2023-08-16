@@ -8,6 +8,8 @@ import { SearchHistory } from '@/components/searchHistory';
 import { Progress } from '@/components/ui/progress';
 import { BandNetwork } from "@/components/bandNetwork";
 
+const fetchCache = 'force-cache';
+
 const AVERAGE_RESPONSE_LENGTH = 400;
 const NUM_RECOMMENDATIONS = 3;
 
