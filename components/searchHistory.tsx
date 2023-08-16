@@ -9,7 +9,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-import { Search } from "@/app/page"
+import { Search } from "@/app/[artistSlug]/page"
 import { useEffect } from "react"
 
 export const SearchHistory = ({
