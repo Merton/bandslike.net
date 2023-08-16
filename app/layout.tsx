@@ -5,8 +5,8 @@ import { Jost } from 'next/font/google'
 const jost = Jost({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'BandsLike',
-  description: 'Find bands like your favorite bands',
+  title: 'Bands like...',
+  description: 'You&apos;ve listened to the entire back catalogue of your favourite band of the week, now what? BandsLike helps you find similar bands, and not just the most popular ones.',
   viewport: {
     width: 'device-width',
     initialScale: 1,
