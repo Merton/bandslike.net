@@ -14,6 +14,7 @@ const openai = new OpenAI({
 
 // Set the runtime to edge for best performance
 export const runtime = 'edge';
+const fetchCache = 'force-cache';
 
 export async function POST(req: Request) {
     const { artist, amount } = await req.json();
@@ -31,6 +32,8 @@ export async function POST(req: Request) {
         ],
     });
 
+    // This is a bit of a hack to get streaming & caching working with Vercel
+    // https://github.com/openai/openai-node/discussions/182#discussioncomment-6619643
     const encoder = new TextEncoder();
     const iterable = response[Symbol.asyncIterator]();
     const stream = new ReadableStream({
@@ -54,11 +57,4 @@ export async function POST(req: Request) {
 
     // Respond with the stream
     return new StreamingTextResponse(stream);
-
-    // // console.log(response.choices[0].message);
-    // // Convert the response into a friendly text-stream
-    // const stream = OpenAIStream(response);
-    // // Respond with the stream
-    // return new StreamingTextResponse(stream)
-    //     // return response.choices[0].message;
 }
