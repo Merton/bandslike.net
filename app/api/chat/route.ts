@@ -8,10 +8,9 @@ import { musicRecSystemPrompt } from '@/prompts/system';
 // });
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-    fetch,
+    fetch: async (input, init) =>
+        fetch(input, { ...init, next: { revalidate: false } }),
 });
-
-// const fetchCache = 'force-cache';
 
 // Set the runtime to edge for best performance
 export const runtime = 'edge';
@@ -20,6 +19,7 @@ export async function POST(req: Request) {
     const { artist, amount } = await req.json();
     // Ask OpenAI for a streaming completion given the prompt
     const response = await openai.chat.completions.create({
+        user: 'nextjs',
         model: 'gpt-3.5-turbo',
         stream: true,
         messages: [
@@ -36,8 +36,9 @@ export async function POST(req: Request) {
     const stream = new ReadableStream({
         async pull(controller) {
             const chunk = await iterable.next();
-
-            if (chunk.done) {
+            // console.log("Chunk:", chunk)
+            if (chunk.value.choices[0].finish_reason === "stop") {
+                chunk.done = true;
                 controller.close();
             } else {
                 const value = chunk.value.choices[0].delta.content;
